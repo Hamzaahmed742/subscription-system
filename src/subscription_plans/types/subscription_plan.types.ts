@@ -6,7 +6,7 @@ import {
 import { SortProperties } from '../../shared/types/sort.types';
 import { ISubscriptionPlan } from '../interfaces/subscription_plan.interface';
 
-enum SubscriptionPlanDurationEnum {
+export enum SubscriptionPlanDurationEnum {
   DAY = 'DAY',
   WEEK = 'WEEK',
   MONTH = 'MONTH',
@@ -20,10 +20,13 @@ export type SubscriptionPlan = ISubscriptionPlan;
 export type SubscriptionInputPayload = Required<
   Pick<
     SubscriptionPlan,
-    'name' | 'code' | 'price' | 'invoice_period' | 'invoice_duration'
+    'name' | 'price' | 'invoice_period' | 'invoice_duration'
   >
 > &
-  Pick<SubscriptionPlan, 'description' | 'trail_period' | 'trail_duration'>;
+  Pick<
+    SubscriptionPlan,
+    'code' | 'description' | 'trail_period' | 'trail_duration'
+  >;
 
 // Type of Subscription Plan Properties used for sorting
 // id | price
