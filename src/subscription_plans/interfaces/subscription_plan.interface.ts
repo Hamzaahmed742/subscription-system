@@ -5,6 +5,9 @@ import { SubscriptionDuration } from '../types/subscription_plan.types';
  * Manage Subscription plans for your service
  * Define its duration for both invoice and trail period
  *
+ * #TODO: Implement the Grace Period
+ *  Implement the Multiple Currencies
+ *  Implement the Plans for each Subscription Plan
  * @export
  * @interface ISubscriptionPlan
  */
