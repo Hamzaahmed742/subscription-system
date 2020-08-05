@@ -1,0 +1,22 @@
+scalar date
+
+scalar Date
+
+type FeedbackResponseInfo {
+  has_more: Boolean!
+  total: Int!
+  limit: Int!
+  skip: Int!
+}
+
+scalar JSON
+scalar JSONObject
+schema {
+	query: Query
+	mutation: Mutation
+}
+
+directive @validate(schema: String, prototype: String) on ARGUMENT_DEFINITION
+directive @deprecated(
+	reason: String = "No longer supported"
+) on FIELD_DEFINITION | ENUM_VALUE
