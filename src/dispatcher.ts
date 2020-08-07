@@ -3,7 +3,6 @@ import {
   Logger,
   ValidationPipe,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -16,6 +15,9 @@ import FastifyHelmet from 'fastify-helmet';
 import { FlubErrorHandler } from 'nestjs-flub';
 
 import { AppModule } from './app.module';
+import { env } from './env';
+import { servicesContainer } from './services/inversify.config';
+import { ServicesApp } from './services/services.app';
 
 /**
  * Start and Stop the Application
@@ -25,7 +27,6 @@ import { AppModule } from './app.module';
 export class AppDispatcher {
   private app: any;
   private logger = new Logger(AppDispatcher.name);
-  private configService: ConfigService;
   /**
    * Trigger the server
    * @returns {Promise<void>}
@@ -70,14 +71,16 @@ export class AppDispatcher {
     this.app.register(FastifyHelmet);
     this.app.use(cors());
     this.app.register(FastifyCompress, { global: false });
-    this.configService = this.app.get(ConfigService);
 
-    if (this.configService.get('app.port') !== 'production') {
+    if (env.NODE_ENV !== 'production') {
       this.app.useGlobalFilters(
         new FlubErrorHandler({ theme: 'dark', quote: true }),
       );
     }
     this.app.useGlobalPipes(new ValidationPipe());
+    const db = servicesContainer.get<ServicesApp>(ServicesApp);
+
+    await db.start();
   }
 
   /**
@@ -87,8 +90,8 @@ export class AppDispatcher {
    * @memberof AppDispatcher
    */
   private async startServer(): Promise<void> {
-    const host = this.configService.get<string>('app.host');
-    const port = this.configService.get<number>('app.port');
+    const host = env.GQLHOST;
+    const port = env.GQLPORT;
     await this.app.listen(port, host);
     this.logger.log(
       `😎 Graphql is exposed at http://${host}:${port}/graphql 😎`,
