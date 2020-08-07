@@ -2,7 +2,7 @@ scalar date
 
 scalar Date
 
-type FeedbackResponseInfo {
+type IPaginationInfo {
   has_more: Boolean!
   total: Int!
   limit: Int!
@@ -11,10 +11,6 @@ type FeedbackResponseInfo {
 
 scalar JSON
 scalar JSONObject
-schema {
-	query: Query
-	mutation: Mutation
-}
 
 directive @validate(schema: String, prototype: String) on ARGUMENT_DEFINITION
 directive @deprecated(
