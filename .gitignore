@@ -394,3 +394,7 @@ dist
 build
 yarn
 *lock
+
+.vscode
+migrations
+free.lemar.client.certificate
