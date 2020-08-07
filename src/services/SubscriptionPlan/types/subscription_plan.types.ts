@@ -4,6 +4,7 @@ import {
   IResponseInfo,
 } from '../../../shared/interfaces/common.interfaces';
 import { SortProperties } from '../../../shared/types/sort.types';
+import { IBaseService } from '../../database/database_service.interface';
 import { ISubscriptionPlan } from '../interfaces/subscription_plan.interface';
 
 export enum SubscriptionPlanDurationEnum {
@@ -54,4 +55,18 @@ export type DeleteSubscriptionPlanResponse = IChangeResponseInfo<
 >;
 export type UpdateSubscriptionPlanResponse = IChangeResponseInfo<
   SubscriptionPlan
+>;
+
+/**
+ * Interface for Subscription Plan Service
+ * CRUD operation
+ *
+ * @export
+ * @interface ISubscriptionPlanService
+ */
+export type ISubscriptionPlanService = IBaseService<
+  SubscriptionPlan,
+  SubscriptionInputPayload,
+  SubscriptionPlanFilter,
+  SubscriptionPlanUpdatePayload
 >;
