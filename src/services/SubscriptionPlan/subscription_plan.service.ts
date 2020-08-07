@@ -4,8 +4,12 @@ import _ from 'lodash';
 
 import { createEverLogger } from '../../helpers/Log';
 import { BadRequestError, ParseError } from '../../shared/errors.messages';
-import { SubscriptionPlanErrorMessage } from '../../subscription_plans/message/error.message';
-import { SubscriptionPlans } from '../../subscription_plans/model/subscription_plan.model';
+import { DatabaseService } from '../database/database.service';
+import { servicesContainer } from '../inversify.config';
+import IService from '../IService';
+import { SubscriptionPlanErrorMessage } from './message/error.message';
+import { SubscriptionPlans } from './model/subscription_plan.model';
+import { ISubscriptionPlanService } from './subscription_plan_service.interface';
 import {
   DeleteSubscriptionPlanResponse,
   SubscriptionInputPayload,
@@ -13,24 +17,21 @@ import {
   SubscriptionPlanFilter,
   SubscriptionPlanResponse,
   UpdateSubscriptionPlanResponse,
-} from '../../subscription_plans/types/subscription_plan.types';
-import { DatabaseService } from '../database/database.service';
-import { servicesContainer } from '../inversify.config';
-import { ISubscriptionPlanService } from './subscription_plan_service.interface';
+} from './types/subscription_plan.types';
 
 @injectable()
-export class SubscriptionPlanService implements ISubscriptionPlanService {
+export class SubscriptionPlanService
+  implements ISubscriptionPlanService, IService {
   private logger = createEverLogger({ name: 'SubscriptionPlanService' });
-  private dbService = servicesContainer
-    .get<DatabaseService>(DatabaseService)
-    .connectDB();
+  private dbService = servicesContainer.get<DatabaseService>(DatabaseService);
   async create(payload: SubscriptionInputPayload): Promise<SubscriptionPlan> {
     let result;
     try {
-      const dbInstace = await this.dbService;
+      const dbInstance = await this.dbService.connectDB();
       result = new SubscriptionPlans({ ...payload });
-      await dbInstace.store(result);
-      await dbInstace.saveChanges();
+      await dbInstance.store(result);
+      await dbInstance.saveChanges();
+      this.logger.debug('Subscription Plan added Successfully', result);
     } catch (e) {
       this.logger.error(e);
       ParseError(e, SubscriptionPlanErrorMessage.DUPLICATE);

@@ -7,9 +7,10 @@ import { DocumentStore, IDocumentSession } from 'ravendb';
 
 import { env } from '../../env';
 import { createEverLogger } from '../../helpers/Log';
+import IService from '../IService';
 
 @injectable()
-export class DatabaseService {
+export class DatabaseService implements IService {
   protected db: IDocumentSession;
   private log = createEverLogger({ name: 'main' });
   constructor() {

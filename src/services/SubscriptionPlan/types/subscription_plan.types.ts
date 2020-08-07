@@ -2,8 +2,8 @@ import {
   IChangeResponseInfo,
   IPagination,
   IResponseInfo,
-} from '../..//shared/interfaces/common.interfaces';
-import { SortProperties } from '../../shared/types/sort.types';
+} from '../../../shared/interfaces/common.interfaces';
+import { SortProperties } from '../../../shared/types/sort.types';
 import { ISubscriptionPlan } from '../interfaces/subscription_plan.interface';
 
 export enum SubscriptionPlanDurationEnum {

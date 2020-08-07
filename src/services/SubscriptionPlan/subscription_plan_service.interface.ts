@@ -6,7 +6,7 @@ import {
   SubscriptionPlanResponse,
   SubscriptionPlanUpdatePayload,
   UpdateSubscriptionPlanResponse,
-} from '../../subscription_plans/types/subscription_plan.types';
+} from './types/subscription_plan.types';
 
 /**
  * Interface for Subscription Plan Service
