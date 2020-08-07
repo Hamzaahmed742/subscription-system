@@ -9,16 +9,25 @@ import { servicesContainer } from '../inversify.config';
 import IService from '../IService';
 import { SubscriptionPlanErrorMessage } from './message/error.message';
 import { SubscriptionPlans } from './model/subscription_plan.model';
-import { ISubscriptionPlanService } from './subscription_plan_service.interface';
 import {
   DeleteSubscriptionPlanResponse,
+  ISubscriptionPlanService,
   SubscriptionInputPayload,
   SubscriptionPlan,
   SubscriptionPlanFilter,
   SubscriptionPlanResponse,
   UpdateSubscriptionPlanResponse,
 } from './types/subscription_plan.types';
+import { subscriptionPlanCreateSchema } from './validators/subscription_plan.create.yup';
 
+/**
+ * Subscription Plans Service
+ * CRUD operation for Subscription Plan
+ * @export
+ * @class SubscriptionPlanService
+ * @implements {ISubscriptionPlanService}
+ * @implements {IService}
+ */
 @injectable()
 export class SubscriptionPlanService
   implements ISubscriptionPlanService, IService {
@@ -27,6 +36,9 @@ export class SubscriptionPlanService
   async create(payload: SubscriptionInputPayload): Promise<SubscriptionPlan> {
     let result;
     try {
+      await subscriptionPlanCreateSchema.validate(payload, {
+        abortEarly: false,
+      });
       const dbInstance = await this.dbService.connectDB();
       result = new SubscriptionPlans({ ...payload });
       await dbInstance.store(result);
