@@ -17,11 +17,11 @@ export class LoggingInterceptor implements NestInterceptor {
   private logger = createEverLogger({ name: 'LoggingInterceptor' });
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    this.logger.log('Before...');
+    this.logger.info('Before...');
 
     const now = Date.now();
     return next
       .handle()
-      .pipe(tap(() => this.logger.log(`After... ${Date.now() - now}ms`)));
+      .pipe(tap(() => this.logger.info(`After... ${Date.now() - now}ms`)));
   }
 }
