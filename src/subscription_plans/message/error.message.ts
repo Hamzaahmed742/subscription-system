@@ -17,4 +17,6 @@ export const SubscriptionPlanErrorMessage = {
 
   /* --------------------------------- Others --------------------------------- */
   INVOICE_PERIOD_DURATION: 'Invoice Period and Duration not matched',
+  DUPLICATE: 'Subscription Plan already exists',
+  UNABLE_TO_SAVE: 'Unable to save subscription plan',
 };

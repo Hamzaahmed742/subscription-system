@@ -63,6 +63,9 @@ export class AppDispatcher {
    * @memberof AppDispatcher
    */
   private async createServer(): Promise<void> {
+    const db = servicesContainer.get<ServicesApp>(ServicesApp);
+
+    await db.start();
     this.app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       new FastifyAdapter({ logger: false }),
@@ -78,9 +81,6 @@ export class AppDispatcher {
       );
     }
     this.app.useGlobalPipes(new ValidationPipe());
-    const db = servicesContainer.get<ServicesApp>(ServicesApp);
-
-    await db.start();
   }
 
   /**

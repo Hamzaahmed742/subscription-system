@@ -16,15 +16,17 @@ import {
  * @interface ISubscriptionPlanService
  */
 export interface ISubscriptionPlanService {
-  create(payload: SubscriptionInputPayload): SubscriptionPlan;
-  findOne(where: SubscriptionPlanFilter): SubscriptionPlan;
+  create(payload: SubscriptionInputPayload): Promise<SubscriptionPlan>;
+  findOne(where: SubscriptionPlanFilter): Promise<SubscriptionPlan>;
   findAll(
     where?: SubscriptionPlanFilter,
-  ): [SubscriptionPlan[], SubscriptionPlanResponse];
-  count(where?: SubscriptionPlanFilter): number;
+  ): Promise<[SubscriptionPlan[], SubscriptionPlanResponse]>;
+  count(where?: SubscriptionPlanFilter): Promise<number>;
   update(
     payload: SubscriptionPlanUpdatePayload,
     where: SubscriptionPlanFilter,
-  ): UpdateSubscriptionPlanResponse;
-  delete(where: SubscriptionPlanFilter): DeleteSubscriptionPlanResponse;
+  ): Promise<UpdateSubscriptionPlanResponse>;
+  delete(
+    where: SubscriptionPlanFilter,
+  ): Promise<DeleteSubscriptionPlanResponse>;
 }
