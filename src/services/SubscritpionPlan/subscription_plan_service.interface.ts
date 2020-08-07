@@ -4,8 +4,9 @@ import {
   SubscriptionPlan,
   SubscriptionPlanFilter,
   SubscriptionPlanResponse,
+  SubscriptionPlanUpdatePayload,
   UpdateSubscriptionPlanResponse,
-} from '../types/subscription_plan.types';
+} from '../../subscription_plans/types/subscription_plan.types';
 
 /**
  * Interface for Subscription Plan Service
@@ -17,17 +18,13 @@ import {
 export interface ISubscriptionPlanService {
   create(payload: SubscriptionInputPayload): SubscriptionPlan;
   findOne(where: SubscriptionPlanFilter): SubscriptionPlan;
-  findAll(where?: SubscriptionPlanFilter): SubscriptionPlan[];
-  findAllWithPagination(
+  findAll(
     where?: SubscriptionPlanFilter,
-  ): SubscriptionPlanResponse;
+  ): [SubscriptionPlan[], SubscriptionPlanResponse];
   count(where?: SubscriptionPlanFilter): number;
   update(
-    payload: SubscriptionInputPayload,
+    payload: SubscriptionPlanUpdatePayload,
     where: SubscriptionPlanFilter,
   ): UpdateSubscriptionPlanResponse;
-  delete(
-    payload: SubscriptionInputPayload,
-    where: SubscriptionPlanFilter,
-  ): DeleteSubscriptionPlanResponse;
+  delete(where: SubscriptionPlanFilter): DeleteSubscriptionPlanResponse;
 }

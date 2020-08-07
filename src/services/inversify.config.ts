@@ -7,9 +7,10 @@ import _ from 'lodash';
 import { ConfigService } from '../config/config.service';
 import { ServiceSymbol } from './IService';
 import { ServicesApp } from './services.app';
+import { SubscriptionPlanService } from './SubscritpionPlan/subscription_plan.service';
 
 const bindings = new ContainerModule((bind: interfaces.Bind) => {
-  _.each([ConfigService], (Service: any) => {
+  _.each([ConfigService, SubscriptionPlanService], (Service: any) => {
     bind(Service).to(Service).inSingletonScope();
 
     bind<any>(ServiceSymbol).toFactory<any>((context) =>
