@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import * as yup from 'yup';
 
+import { ErrorGenerator } from '../../../shared/errors.generator';
 import { SubscriptionPlanErrorMessage } from '../message/error.message';
 import {
   SubscriptionDuration,
@@ -16,25 +17,38 @@ export const subscriptionPlanCreateSchema = yup
     name: yup
       .string()
       .trim()
-      .min(3, SubscriptionPlanErrorMessage.MIN_NAME_LENGTH)
-      .max(50, SubscriptionPlanErrorMessage.MAX_NAME_LENGTH)
-      .required(SubscriptionPlanErrorMessage.NAME_REQUIRED),
+      .min(3, ErrorGenerator.MiniLength<SubscriptionInputPayload>('name', 3))
+      .max(50, ErrorGenerator.MaxLength<SubscriptionInputPayload>('name', 50))
+      .required(ErrorGenerator.Required<SubscriptionInputPayload>('name')),
     price: yup
       .number()
       .min(0)
-      .required(SubscriptionPlanErrorMessage.PRICE_REQUIRED),
+      .required(ErrorGenerator.Required<SubscriptionInputPayload>('price')),
     invoice_period: yup
       .number()
-      .min(1, SubscriptionPlanErrorMessage.MIN_INVOICE_PERIOD)
-      .max(31)
-      .required(SubscriptionPlanErrorMessage.INVOICE_PERIOD_REQUIRED),
+      .min(
+        1,
+        ErrorGenerator.MinValue<SubscriptionInputPayload>('invoice_period', 1),
+      )
+      .max(
+        31,
+        ErrorGenerator.MaxValue<SubscriptionInputPayload>('invoice_period', 31),
+      )
+      .required(
+        ErrorGenerator.Required<SubscriptionInputPayload>('invoice_period'),
+      ),
     invoice_duration: yup
       .mixed<SubscriptionDuration>()
       .oneOf(Object.values(SubscriptionPlanDurationEnum))
-      .required(SubscriptionPlanErrorMessage.INVOICE_DURATION_REQUIRED),
+      .required(
+        ErrorGenerator.Required<SubscriptionInputPayload>('invoice_duration'),
+      ),
     trail_period: yup
       .number()
-      .min(1, SubscriptionPlanErrorMessage.MIN_TRIAL_PERIOD)
+      .min(
+        1,
+        ErrorGenerator.MiniLength<SubscriptionInputPayload>('trail_period', 1),
+      )
       .max(31),
     trail_duration: yup
       .mixed<SubscriptionDuration>()
@@ -84,7 +98,7 @@ export const subscriptionPlanCreateSchema = yup
   )
   .test(
     'trail-period-duration',
-    'trail Period and Duration not matched',
+    SubscriptionPlanErrorMessage.TRAIL_PERIOD_DURATION,
     // eslint-disable-next-line complexity
     (value: SubscriptionInputPayload) => {
       /**
