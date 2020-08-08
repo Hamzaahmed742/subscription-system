@@ -16,7 +16,7 @@ export enum SubscriptionPlanDurationEnum {
 export type SubscriptionDuration = keyof typeof SubscriptionPlanDurationEnum;
 
 export type SubscriptionPlan = ISubscriptionPlan;
-
+export type Ta = keyof ISubscriptionPlan;
 // Type for creating Subscription Plan
 export type SubscriptionInputPayload = Required<
   Pick<
@@ -37,8 +37,8 @@ type SubscriptionPlanSortKeys = Extract<
 >;
 
 // Transform the property type to SortDirection
-// {id: SortDirection}
-type SubscriptionPlanSort = SortProperties<SubscriptionPlanSortKeys>;
+// {id: "ASC" | "DESC"}
+export type SubscriptionPlanSort = SortProperties<SubscriptionPlanSortKeys>;
 
 // Type for getting Subscription Plan
 export type SubscriptionPlanFilter = Partial<
