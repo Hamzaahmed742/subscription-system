@@ -6,7 +6,7 @@ import { createEverLogger } from '../../helpers/Log';
 import { BadRequestError, ParseError } from '../../shared/errors.messages';
 import { DatabaseService } from '../database/database.service';
 import { servicesContainer } from '../inversify.config';
-import IService from '../IService';
+import { IService } from '../IService';
 import { SubscriptionPlanErrorMessage } from './message/error.message';
 import { SubscriptionPlans } from './model/subscription_plan.model';
 import {
@@ -34,15 +34,15 @@ export class SubscriptionPlanService
   private logger = createEverLogger({ name: 'SubscriptionPlanService' });
   private dbService = servicesContainer.get<DatabaseService>(DatabaseService);
   async create(payload: SubscriptionInputPayload): Promise<SubscriptionPlan> {
-    let result;
+    let result: SubscriptionPlan;
     try {
       await subscriptionPlanCreateSchema.validate(payload, {
         abortEarly: false,
       });
-      const dbInstance = await this.dbService.connectDB();
-      result = new SubscriptionPlans({ ...payload });
-      await dbInstance.store(result);
-      await dbInstance.saveChanges();
+
+      result = await this.dbService.create<SubscriptionPlan, SubscriptionPlans>(
+        new SubscriptionPlans({ ...payload }),
+      );
       this.logger.debug('Subscription Plan added Successfully', result);
     } catch (e) {
       this.logger.error(e);

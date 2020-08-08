@@ -4,7 +4,7 @@ import {
   IResponseInfo,
 } from '../../../shared/interfaces/common.interfaces';
 import { SortProperties } from '../../../shared/types/sort.types';
-import { IBaseService } from '../../database/database_service.interface';
+import { IBaseService } from '../../base/base.service';
 import { ISubscriptionPlan } from '../interfaces/subscription_plan.interface';
 
 export enum SubscriptionPlanDurationEnum {
