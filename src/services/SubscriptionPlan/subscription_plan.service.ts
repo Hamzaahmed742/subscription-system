@@ -25,6 +25,7 @@ import {
 } from './types/subscription_plan.types';
 import { subscriptionPlanCreateSchema } from './validators/subscription_plan.create.yup';
 import { subscriptionPlanFilterSchema } from './validators/subscription_plan.filter.yup';
+import { subscriptionPlanUpdateSchema } from './validators/subscription_plan.update.yup';
 
 /**
  * Subscription Plans Service
@@ -39,13 +40,23 @@ export class SubscriptionPlanService
   implements ISubscriptionPlanService, IService {
   private logger = createEverLogger({ name: 'SubscriptionPlanService' });
   private dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+  /**
+   * Create the subscription plan
+   *
+   * Returns the newly created subscription plan object with id
+   *
+   * @param {SubscriptionInputPayload} payload
+   * @returns {Promise<SubscriptionPlan>}
+   * @memberof SubscriptionPlanService
+   */
   async create(payload: SubscriptionInputPayload): Promise<SubscriptionPlan> {
     let result: SubscriptionPlan;
     try {
+      // Validate the payload
       await subscriptionPlanCreateSchema.validate(payload, {
         abortEarly: false,
       });
-
+      // Make db call
       result = await this.dbService.create<SubscriptionPlan, SubscriptionPlans>(
         new SubscriptionPlans({ ...payload }),
       );
@@ -59,6 +70,13 @@ export class SubscriptionPlanService
     }
     throw BadRequestError(ErrorGenerator.UnableSave('Subscription Plan'));
   }
+  /**
+   * Get the subscription plan by id only
+   * will return single object
+   * @param {SubscriptionPlanFilter} where
+   * @returns {Promise<SubscriptionPlan>}
+   * @memberof SubscriptionPlanService
+   */
   async findOne(where: SubscriptionPlanFilter): Promise<SubscriptionPlan> {
     let edge: SubscriptionPlan;
     try {
@@ -66,10 +84,16 @@ export class SubscriptionPlanService
       await subscriptionPlanFilterSchema.validate(where, {
         abortEarly: false,
       });
-      edge = await this.dbService.findOne<
-        SubscriptionPlan,
-        SubscriptionPlanFilter
-      >(where);
+      // Get the subscription plan id
+      // TODO: Implement other filters
+      const id = where?.id;
+      if (!_.isNil(id)) {
+        // make db call
+        edge = await this.dbService.findOne<
+          SubscriptionPlan,
+          SubscriptionPlanFilter
+        >({ id });
+      }
     } catch (e) {
       this.logger.error(e);
       ParseError(e, ErrorGenerator.NotFound('Subscription Plan'));
@@ -79,6 +103,13 @@ export class SubscriptionPlanService
     }
     throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
+  /**
+   * Get all the subscriptions plans
+   * with pagination
+   * @param {SubscriptionPlanFilter} [where]
+   * @returns {Promise<SubscriptionPlanResponse>}
+   * @memberof SubscriptionPlanService
+   */
   async findAll(
     where?: SubscriptionPlanFilter,
   ): Promise<SubscriptionPlanResponse> {
@@ -100,9 +131,8 @@ export class SubscriptionPlanService
         abortEarly: false,
       });
       if (where) {
-        const id = where?.id;
-        const limit = where?.limit;
-        const skip = where?.skip;
+        // TODO: Implement other filters
+        const { id, limit, skip } = where;
         // isNil check for for null or undefined
         if (!_.isNil(id) && !_.isNil(limit) && !_.isNil(skip)) {
           // Set Limit and Skip for `page_info`
@@ -156,15 +186,95 @@ export class SubscriptionPlanService
   count(where?: SubscriptionPlanFilter): Promise<number> {
     throw new Error('Method not implemented.');
   }
-  update(
+  /**
+   * Update the subscription plan
+   * by id only
+   * @param {SubscriptionInputPayload} payload
+   * @param {SubscriptionPlanFilter} where
+   * @returns {Promise<UpdateSubscriptionPlanResponse>}
+   * @memberof SubscriptionPlanService
+   */
+  async update(
     payload: SubscriptionInputPayload,
     where: SubscriptionPlanFilter,
   ): Promise<UpdateSubscriptionPlanResponse> {
-    throw new Error('Method not implemented.');
+    let modified: number;
+    let edges: SubscriptionPlan[];
+
+    try {
+      // Validate the input
+      await subscriptionPlanUpdateSchema.validate(
+        { ...payload, ...where },
+        { abortEarly: false },
+      );
+      // Check where is defined
+      if (where) {
+        const { id } = where;
+        // Get Subscription plan id
+        if (!_.isNil(id)) {
+          // Generate the slug
+          const slug = payload.name.toLowerCase().replace(' ', '-');
+          // Make db call
+          [edges, modified] = await this.dbService.update<
+            SubscriptionPlan,
+            Partial<SubscriptionPlan>,
+            SubscriptionPlanFilter
+          >({ ...payload, slug }, { id });
+          this.logger.info(
+            { count: modified, data: JSON.stringify(edges) },
+            // ,
+            'Modified data',
+          );
+        }
+      }
+    } catch (e) {
+      this.logger.error(e);
+      ParseError(e, ErrorGenerator.Duplicate('Subscription Plan'));
+    }
+    if (modified > 0) {
+      // Return the update data with count
+      return { modified, edges };
+    }
+    throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
-  delete(
+  /**
+   * Delete the subscription plan
+   * by id only
+   * @param {SubscriptionPlanFilter} where
+   * @returns {Promise<DeleteSubscriptionPlanResponse>}
+   * @memberof SubscriptionPlanService
+   */
+  async delete(
     where: SubscriptionPlanFilter,
   ): Promise<DeleteSubscriptionPlanResponse> {
-    throw new Error('Method not implemented.');
+    let modified: number;
+    let edges: SubscriptionPlan[];
+
+    try {
+      this.logger.info(where, 'Delete request');
+      // Validate the payload
+      await subscriptionPlanCreateSchema.validate(where, { abortEarly: false });
+      // Check where is defined
+      if (where) {
+        // Get the subscription plan id
+        const { id } = where;
+        if (!_.isNil(id)) {
+          // Make db call
+          [edges, modified] = await this.dbService.delete<
+            SubscriptionPlan,
+            SubscriptionPlanFilter
+          >({
+            id,
+          });
+        }
+      }
+    } catch (e) {
+      this.logger.error(e);
+      ParseError(e, ErrorGenerator.UnableToDelete('Subscription Plan'));
+    }
+    if (modified > 0) {
+      return { modified, edges };
+    }
+    throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
 }

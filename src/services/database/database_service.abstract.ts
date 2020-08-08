@@ -82,7 +82,7 @@ export abstract class IDatabaseRepo {
    * @returns {Promise<T[]>}
    * @memberof IDatabaseRepo
    */
-  update<F, U, T>(payload: U, where: F): Promise<T[]> {
+  update<F, U, T>(payload: U, where: F): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
 
@@ -95,7 +95,7 @@ export abstract class IDatabaseRepo {
    * @returns {(Promise<[T | T[], number]>)}
    * @memberof IDatabaseRepo
    */
-  delete<T, F>(where: F): Promise<[T | T[], number]> {
+  delete<T, F>(where: F): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
 }

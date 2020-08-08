@@ -71,4 +71,14 @@ export const ErrorGenerator = {
    * @returns {string}
    */
   Duplicate: <T>(key: keyof T): string => `${key.toString()}: already exists`,
+
+  /**
+   * Return Error message
+   * Unable to delete `key`
+   * @template T Model
+   * @param {keyof T} key Model Key
+   * @returns {string}
+   */
+  UnableToDelete: <T>(key: keyof T): string =>
+    `Unable to delete ${key.toString()}`,
 };

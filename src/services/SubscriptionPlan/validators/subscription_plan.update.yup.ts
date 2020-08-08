@@ -5,76 +5,93 @@ import { ErrorGenerator } from '../../../shared/errors.generator';
 import { SubscriptionPlanErrorMessage } from '../message/error.message';
 import {
   SubscriptionDuration,
-  SubscriptionInputPayload,
   SubscriptionPlanDurationEnum,
+  SubscriptionPlanUpdatePayload,
 } from '../types/subscription_plan.types';
 
 /**
- * Validator for Creating the Subscription Plan
+ * Validator for Updating the Subscription Plan
  */
-export const subscriptionPlanCreateSchema = yup
-  .object<SubscriptionInputPayload>({
+export const subscriptionPlanUpdateSchema = yup
+  .object<SubscriptionPlanUpdatePayload>({
     name: yup
       .string()
       .trim()
-      .min(3, ErrorGenerator.MiniLength<SubscriptionInputPayload>('name', 3))
-      .max(50, ErrorGenerator.MaxLength<SubscriptionInputPayload>('name', 50))
-      .required(ErrorGenerator.Required<SubscriptionInputPayload>('name')),
-    price: yup
-      .number()
-      .min(0)
-      .required(ErrorGenerator.Required<SubscriptionInputPayload>('price')),
-    invoice_period: yup
-      .number()
       .min(
-        1,
-        ErrorGenerator.MinValue<SubscriptionInputPayload>('invoice_period', 1),
+        3,
+        ErrorGenerator.MiniLength<SubscriptionPlanUpdatePayload>('name', 3),
       )
       .max(
-        31,
-        ErrorGenerator.MaxValue<SubscriptionInputPayload>('invoice_period', 31),
-      )
-      .required(
-        ErrorGenerator.Required<SubscriptionInputPayload>('invoice_period'),
+        50,
+        ErrorGenerator.MaxLength<SubscriptionPlanUpdatePayload>('name', 50),
       ),
-    invoice_duration: yup
-      .mixed<SubscriptionDuration>()
-      .oneOf(Object.values(SubscriptionPlanDurationEnum))
-      .required(
-        ErrorGenerator.Required<SubscriptionInputPayload>('invoice_duration'),
-      ),
-    trail_period: yup
-      .number()
-      .min(
-        1,
-        ErrorGenerator.MiniLength<SubscriptionInputPayload>('trail_period', 1),
-      )
-      .max(31),
-    trail_duration: yup
-      .mixed<SubscriptionDuration>()
-      .oneOf(Object.values(SubscriptionPlanDurationEnum)),
     code: yup
       .string()
       .trim()
-      .min(3, ErrorGenerator.MiniLength<SubscriptionInputPayload>('code', 3))
-      .max(50, ErrorGenerator.MaxLength<SubscriptionInputPayload>('code', 50)),
+      .min(
+        3,
+        ErrorGenerator.MiniLength<SubscriptionPlanUpdatePayload>('code', 3),
+      )
+      .max(
+        50,
+        ErrorGenerator.MaxLength<SubscriptionPlanUpdatePayload>('code', 50),
+      ),
     description: yup
       .string()
       .trim()
       .min(
         3,
-        ErrorGenerator.MiniLength<SubscriptionInputPayload>('description', 3),
+        ErrorGenerator.MiniLength<SubscriptionPlanUpdatePayload>(
+          'description',
+          3,
+        ),
       )
       .max(
         50,
-        ErrorGenerator.MaxLength<SubscriptionInputPayload>('description', 50),
+        ErrorGenerator.MaxLength<SubscriptionPlanUpdatePayload>(
+          'description',
+          50,
+        ),
       ),
+    price: yup.number().min(0),
+    invoice_period: yup
+      .number()
+      .min(
+        1,
+        ErrorGenerator.MinValue<SubscriptionPlanUpdatePayload>(
+          'invoice_period',
+          1,
+        ),
+      )
+      .max(
+        31,
+        ErrorGenerator.MaxValue<SubscriptionPlanUpdatePayload>(
+          'invoice_period',
+          31,
+        ),
+      ),
+    invoice_duration: yup
+      .mixed<SubscriptionDuration>()
+      .oneOf(Object.values(SubscriptionPlanDurationEnum)),
+    trail_period: yup
+      .number()
+      .min(
+        1,
+        ErrorGenerator.MiniLength<SubscriptionPlanUpdatePayload>(
+          'trail_period',
+          1,
+        ),
+      )
+      .max(31),
+    trail_duration: yup
+      .mixed<SubscriptionDuration>()
+      .oneOf(Object.values(SubscriptionPlanDurationEnum)),
   })
   .test(
     'invoice-period-duration',
     SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION,
     // eslint-disable-next-line complexity
-    (value: SubscriptionInputPayload) => {
+    (value: SubscriptionPlanUpdatePayload) => {
       /**
        * Validate the duration and period for the subscription plan
        * If Duration is DAY then period must be between 1 and 31
@@ -116,7 +133,7 @@ export const subscriptionPlanCreateSchema = yup
     'trail-period-duration',
     SubscriptionPlanErrorMessage.TRAIL_PERIOD_DURATION,
     // eslint-disable-next-line complexity
-    (value: SubscriptionInputPayload) => {
+    (value: SubscriptionPlanUpdatePayload) => {
       /**
        * Validate the duration and period for the subscription plan
        * If Duration is DAY then period must be between 1 and 31

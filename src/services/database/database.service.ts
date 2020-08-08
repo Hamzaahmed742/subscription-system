@@ -47,10 +47,10 @@ export class DatabaseService implements IService, IDatabaseRepo {
   count<F>(where?: F): Promise<number> {
     throw new Error('Method not implemented.');
   }
-  update<F, U, T>(payload: U, where: F): Promise<T[]> {
+  update<T, U, F>(payload: U, where: F): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
-  delete<T, F>(where: F): Promise<T> {
+  delete<T, F>(where: F): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
   async connectDB(): Promise<IDocumentSession> {

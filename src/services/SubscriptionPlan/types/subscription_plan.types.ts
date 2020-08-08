@@ -42,9 +42,9 @@ export type SubscriptionPlanSort = SortProperties<SubscriptionPlanSortKeys>;
 
 // Type for getting Subscription Plan
 export type SubscriptionPlanFilter = Partial<
-  Pick<SubscriptionPlan, 'id' | 'code' | 'slug'>
-> &
-  Pick<IPagination, 'limit' | 'skip'> & { sort_by: SubscriptionPlanSort };
+  Pick<SubscriptionPlan, 'id' | 'code' | 'slug'> &
+    Pick<IPagination, 'limit' | 'skip'> & { sort_by: SubscriptionPlanSort }
+>;
 
 // Type for Updating Subscription Plan
 export type SubscriptionPlanUpdatePayload = SubscriptionInputPayload;
