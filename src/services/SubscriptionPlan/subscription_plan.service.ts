@@ -3,11 +3,15 @@ import { injectable } from 'inversify';
 import _ from 'lodash';
 
 import { createEverLogger } from '../../helpers/Log';
-import { BadRequestError, ParseError } from '../../shared/errors.messages';
+import { ErrorGenerator } from '../../shared/errors.generator';
+import {
+  BadRequestError,
+  NotFoundError,
+  ParseError,
+} from '../../shared/errors.messages';
 import { DatabaseService } from '../database/database.service';
 import { servicesContainer } from '../inversify.config';
 import { IService } from '../IService';
-import { SubscriptionPlanErrorMessage } from './message/error.message';
 import { SubscriptionPlans } from './model/subscription_plan.model';
 import {
   DeleteSubscriptionPlanResponse,
@@ -19,6 +23,7 @@ import {
   UpdateSubscriptionPlanResponse,
 } from './types/subscription_plan.types';
 import { subscriptionPlanCreateSchema } from './validators/subscription_plan.create.yup';
+import { subscriptionPlanFilterSchema } from './validators/subscription_plan.filter.yup';
 
 /**
  * Subscription Plans Service
@@ -46,15 +51,32 @@ export class SubscriptionPlanService
       this.logger.debug('Subscription Plan added Successfully', result);
     } catch (e) {
       this.logger.error(e);
-      ParseError(e, SubscriptionPlanErrorMessage.DUPLICATE);
+      ParseError(e, ErrorGenerator.Duplicate('Subscription Plan'));
     }
     if (!_.isEmpty(result.id)) {
       return result;
     }
-    throw BadRequestError(SubscriptionPlanErrorMessage.UNABLE_TO_SAVE);
+    throw BadRequestError(ErrorGenerator.UnableSave('Subscription Plan'));
   }
-  findOne(where: SubscriptionPlanFilter): Promise<SubscriptionPlan> {
-    throw new Error('Method not implemented.');
+  async findOne(where: SubscriptionPlanFilter): Promise<SubscriptionPlan> {
+    let edge: SubscriptionPlan;
+    try {
+      // Validate Input
+      await subscriptionPlanFilterSchema.validate(where, {
+        abortEarly: false,
+      });
+      edge = await this.dbService.findOne<
+        SubscriptionPlan,
+        SubscriptionPlanFilter
+      >(where);
+    } catch (e) {
+      this.logger.error(e);
+      ParseError(e, ErrorGenerator.NotFound('Subscription Plan'));
+    }
+    if (!_.isEmpty(edge)) {
+      return edge;
+    }
+    throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
   findAll(
     where?: SubscriptionPlanFilter,
