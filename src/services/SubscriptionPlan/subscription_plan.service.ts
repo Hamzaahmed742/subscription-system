@@ -21,6 +21,7 @@ import {
   SubscriptionPlan,
   SubscriptionPlanFilter,
   SubscriptionPlanResponse,
+  SubscriptionPlanUpdatePayload,
   UpdateSubscriptionPlanResponse,
 } from './types/subscription_plan.types';
 import { subscriptionPlanCreateSchema } from './validators/subscription_plan.create.yup';
@@ -92,13 +93,15 @@ export class SubscriptionPlanService
         edge = await this.dbService.findOne<
           SubscriptionPlan,
           SubscriptionPlanFilter
-        >({ id });
+        >(new SubscriptionPlans({ id }));
       }
     } catch (e) {
       this.logger.error(e);
       ParseError(e, ErrorGenerator.NotFound('Subscription Plan'));
     }
     if (!_.isEmpty(edge)) {
+      this.logger.debug('Subscription Plan loaded Successfully', edge);
+
       return edge;
     }
     throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
@@ -142,7 +145,7 @@ export class SubscriptionPlanService
           [edges, count] = await this.dbService.findAll<
             SubscriptionPlan,
             Partial<SubscriptionPlanFilter>
-          >({ id }, recordLimit, recordSkip);
+          >(new SubscriptionPlans({ id }), recordLimit, recordSkip);
         } else if (!_.isNil(limit) && !_.isNil(skip)) {
           // Set Limit and Skip for `page_info`
           recordLimit = limit;
@@ -151,26 +154,29 @@ export class SubscriptionPlanService
           [edges, count] = await this.dbService.findAll<
             SubscriptionPlan,
             Partial<SubscriptionPlanFilter>
-          >(null, recordLimit, recordSkip);
+          >(new SubscriptionPlans(), recordLimit, recordSkip);
         } else if (!_.isNil(id)) {
           // Load All SubscriptionPlan with id with default pagination
           [edges, count] = await this.dbService.findAll<
             SubscriptionPlan,
             Partial<SubscriptionPlanFilter>
-          >({ id }, recordLimit, recordSkip);
+          >(new SubscriptionPlans({ id }), recordLimit, recordSkip);
         }
       } else {
         // Load All SubscriptionPlan with default pagination
         [edges, count] = await this.dbService.findAll<
           SubscriptionPlan,
           Partial<SubscriptionPlanFilter>
-        >(null, recordLimit, recordSkip);
+        >(new SubscriptionPlans(), recordLimit, recordSkip);
       }
     } catch (error) {
+      this.logger.error(error);
       // Empty
     }
     // Validate edges are not empty
     if (!_.isEmpty(edges)) {
+      this.logger.debug('Subscription Plan loaded Successfully', edges);
+
       return {
         edges,
         page_info: {
@@ -189,13 +195,13 @@ export class SubscriptionPlanService
   /**
    * Update the subscription plan
    * by id only
-   * @param {SubscriptionInputPayload} payload
+   * @param {SubscriptionPlanUpdatePayload} payload
    * @param {SubscriptionPlanFilter} where
    * @returns {Promise<UpdateSubscriptionPlanResponse>}
    * @memberof SubscriptionPlanService
    */
   async update(
-    payload: SubscriptionInputPayload,
+    payload: SubscriptionPlanUpdatePayload,
     where: SubscriptionPlanFilter,
   ): Promise<UpdateSubscriptionPlanResponse> {
     let modified: number;
@@ -219,12 +225,11 @@ export class SubscriptionPlanService
             SubscriptionPlan,
             Partial<SubscriptionPlan>,
             SubscriptionPlanFilter
-          >({ ...payload, slug }, { id });
-          this.logger.info(
-            { count: modified, data: JSON.stringify(edges) },
-            // ,
-            'Modified data',
+          >(
+            new SubscriptionPlans({ ...payload, slug }),
+            new SubscriptionPlans({ id }),
           );
+          this.logger.debug('Subscription Plan Update Successfully', edges);
         }
       }
     } catch (e) {
@@ -253,7 +258,7 @@ export class SubscriptionPlanService
     try {
       this.logger.info(where, 'Delete request');
       // Validate the payload
-      await subscriptionPlanCreateSchema.validate(where, { abortEarly: false });
+      await subscriptionPlanFilterSchema.validate(where, { abortEarly: false });
       // Check where is defined
       if (where) {
         // Get the subscription plan id
@@ -263,9 +268,8 @@ export class SubscriptionPlanService
           [edges, modified] = await this.dbService.delete<
             SubscriptionPlan,
             SubscriptionPlanFilter
-          >({
-            id,
-          });
+          >(new SubscriptionPlans({ id }));
+          this.logger.debug('Subscription Plan deleted Successfully', edges);
         }
       }
     } catch (e) {

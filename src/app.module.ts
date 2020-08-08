@@ -85,5 +85,9 @@ export class AppModule {
       trail_duration: 'DAY',
       trail_period: 12,
     });
+    // void s.findAll();
+    // void s.delete({ id: '257-A' });
+    // void s.findOne({ id: '257-A' });
+    // void s.update({ name: 'Test Update name1' }, { id: '353-A' });
   }
 }

@@ -47,7 +47,7 @@ export type SubscriptionPlanFilter = Partial<
 >;
 
 // Type for Updating Subscription Plan
-export type SubscriptionPlanUpdatePayload = SubscriptionInputPayload;
+export type SubscriptionPlanUpdatePayload = Partial<SubscriptionInputPayload>;
 
 export type SubscriptionPlanResponse = IResponseInfo<SubscriptionPlan>;
 export type DeleteSubscriptionPlanResponse = IChangeResponseInfo<

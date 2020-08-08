@@ -126,7 +126,7 @@ export const subscriptionPlanUpdateSchema = yup
         }
         return false;
       }
-      return false;
+      return true;
     },
   )
   .test(

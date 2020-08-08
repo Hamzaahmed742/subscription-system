@@ -12,7 +12,7 @@ import { SubscriptionDuration } from '../types/subscription_plan.types';
  * @interface ISubscriptionPlan
  */
 export interface ISubscriptionPlan {
-  id: number;
+  id: string;
 
   /**
    * Store the Subscription Name
