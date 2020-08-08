@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -78,10 +79,79 @@ export class SubscriptionPlanService
     }
     throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
-  findAll(
+  async findAll(
     where?: SubscriptionPlanFilter,
-  ): Promise<[SubscriptionPlan[], SubscriptionPlanResponse]> {
-    throw new Error('Method not implemented.');
+  ): Promise<SubscriptionPlanResponse> {
+    // Validate the Input
+
+    let edges: SubscriptionPlan[];
+    let count: number; // Rows counts
+    let recordLimit = 10; // Pagination Limit
+    let recordSkip = 0; // Pagination: SKIP
+
+    // TODO
+    // Transform from Object to Array
+    // { id: SortDirection.ASC } to [ "id", "ASC"]
+    // for (const [key, value] of Object.entries(sortBy)) {
+    //   sortOrder.push([key, value]);
+    // }
+    try {
+      await subscriptionPlanFilterSchema.validate(where, {
+        abortEarly: false,
+      });
+      if (where) {
+        const id = where?.id;
+        const limit = where?.limit;
+        const skip = where?.skip;
+        // isNil check for for null or undefined
+        if (!_.isNil(id) && !_.isNil(limit) && !_.isNil(skip)) {
+          // Set Limit and Skip for `page_info`
+          recordLimit = limit;
+          recordSkip = skip;
+          // Load the SubscriptionPlan with ID and Pagination
+          [edges, count] = await this.dbService.findAll<
+            SubscriptionPlan,
+            Partial<SubscriptionPlanFilter>
+          >({ id }, recordLimit, recordSkip);
+        } else if (!_.isNil(limit) && !_.isNil(skip)) {
+          // Set Limit and Skip for `page_info`
+          recordLimit = limit;
+          recordSkip = skip;
+          // Load All SubscriptionPlan with default pagination
+          [edges, count] = await this.dbService.findAll<
+            SubscriptionPlan,
+            Partial<SubscriptionPlanFilter>
+          >(null, recordLimit, recordSkip);
+        } else if (!_.isNil(id)) {
+          // Load All SubscriptionPlan with id with default pagination
+          [edges, count] = await this.dbService.findAll<
+            SubscriptionPlan,
+            Partial<SubscriptionPlanFilter>
+          >({ id }, recordLimit, recordSkip);
+        }
+      } else {
+        // Load All SubscriptionPlan with default pagination
+        [edges, count] = await this.dbService.findAll<
+          SubscriptionPlan,
+          Partial<SubscriptionPlanFilter>
+        >(null, recordLimit, recordSkip);
+      }
+    } catch (error) {
+      // Empty
+    }
+    // Validate edges are not empty
+    if (!_.isEmpty(edges)) {
+      return {
+        edges,
+        page_info: {
+          total: count,
+          limit: recordLimit,
+          skip: recordSkip,
+          has_more: count > recordLimit + recordSkip ? true : false,
+        },
+      };
+    }
+    throw NotFoundError(ErrorGenerator.NotFound('Subscription Plan'));
   }
   count(where?: SubscriptionPlanFilter): Promise<number> {
     throw new Error('Method not implemented.');

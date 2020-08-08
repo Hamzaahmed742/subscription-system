@@ -9,7 +9,7 @@ import { DocumentStore, IDocumentSession } from 'ravendb';
 import { env } from '../../env';
 import { createEverLogger } from '../../helpers/Log';
 import { IService } from '../IService';
-import { IDatabaseRepo } from './database_service.base';
+import { IDatabaseRepo } from './database_service.abstract';
 
 /**
  * Implementation Service for Crud
@@ -37,7 +37,11 @@ export class DatabaseService implements IService, IDatabaseRepo {
   findOne<T, F>(where: F): Promise<T> {
     throw new Error('Method not implemented.');
   }
-  findAll<T, F>(where?: F): Promise<T[]> {
+  findAll<T, F>(
+    where?: F,
+    limit?: number,
+    skip?: number,
+  ): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
   count<F>(where?: F): Promise<number> {

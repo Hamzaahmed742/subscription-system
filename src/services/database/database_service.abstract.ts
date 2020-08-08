@@ -48,10 +48,16 @@ export abstract class IDatabaseRepo {
    * @template F Type of Filter data
    * @template F
    * @param {F} [where]
+   * @param {number} [limit]
+   * @param {number} [skip]
    * @returns {Promise<T[]>}
    * @memberof IDatabaseRepo
    */
-  findAll<T, F>(where?: F): Promise<T[]> {
+  findAll<T, F>(
+    where?: F,
+    limit?: number,
+    skip?: number,
+  ): Promise<[T[], number]> {
     throw new Error('Method not implemented.');
   }
   /**

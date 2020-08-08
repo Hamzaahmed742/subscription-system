@@ -16,7 +16,7 @@ import {
 export interface IBaseService<T, P, F, U> {
   create(payload: P): Promise<T>;
   findOne(where: F): Promise<T>;
-  findAll(where?: F): Promise<[T[], IResponseInfo<T>]>;
+  findAll(where?: F): Promise<IResponseInfo<T>>;
   count(where?: F): Promise<number>;
   update(payload: U, where: F): Promise<IChangeResponseInfo<T>>;
   delete(where: F): Promise<IChangeResponseInfo<T>>;
