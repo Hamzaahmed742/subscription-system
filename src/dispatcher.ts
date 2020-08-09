@@ -4,6 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { Transport } from '@nestjs/microservices';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -13,6 +14,7 @@ import cors from 'cors';
 import FastifyCompress from 'fastify-compress';
 import FastifyHelmet from 'fastify-helmet';
 import { FlubErrorHandler } from 'nestjs-flub';
+import { join } from 'path';
 
 import { AppModule } from './app.module';
 import { env } from './env';
@@ -81,6 +83,36 @@ export class AppDispatcher {
       );
     }
     this.app.useGlobalPipes(new ValidationPipe());
+    const protoDir = join(process.cwd(), 'protos');
+    // # TODO: Implement secure connection
+    // const credentials = grpc.ServerCredentials.createSsl(null, [
+    //   {
+    //     private_key: readFileSync(join(process.cwd(), 'certs/server.key')),
+    //     cert_chain: readFileSync(join(process.cwd(), 'certs/server.crt')),
+    //   },
+    // ] as any);
+
+    this.app.connectMicroservice({
+      transport: Transport.GRPC,
+      options: {
+        // credentials,
+        url: '0.0.0.0:5000',
+        package: 'rpc',
+        protoPath: `${protoDir}/rpc/rpc.proto`,
+        loader: {
+          keepCase: true,
+          longs: Number,
+          defaults: true,
+          oneofs: true,
+          enums: String,
+          arrays: true,
+          objects: true,
+          includeDirs: [protoDir],
+        },
+      },
+    });
+
+    await this.app.startAllMicroservicesAsync();
   }
 
   /**

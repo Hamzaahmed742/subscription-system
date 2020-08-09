@@ -2,7 +2,7 @@
   "compileOnSave": false,
 	"compilerOptions": {
 		"composite": false,
-		"declaration": false,
+		"declaration": true,
 		"declarationMap": false,
 		"importHelpers": true,
 		"module": "commonjs",
@@ -30,6 +30,7 @@
     "baseUrl": "./src",
 		"outDir": "./build",
     "incremental": true,
+    "allowJs":true,
     "target": "es2017",
     "types": ["node", "reflect-metadata", "jest"],
 

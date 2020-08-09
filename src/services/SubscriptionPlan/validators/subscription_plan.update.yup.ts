@@ -100,31 +100,41 @@ export const subscriptionPlanUpdateSchema = yup
        * If Duration is WEEK then period must be between 1 and 4
        */
       if (!_.isNil(value.invoice_period) && !_.isNil(value.invoice_duration)) {
-        if (
-          value.invoice_duration === SubscriptionPlanDurationEnum.DAY &&
-          value.invoice_period <= 31
-        ) {
-          return true;
-        }
-        if (
-          value.invoice_duration === SubscriptionPlanDurationEnum.MONTH &&
-          value.invoice_period <= 12
-        ) {
-          return true;
-        }
-        if (
-          value.invoice_duration === SubscriptionPlanDurationEnum.YEAR &&
-          value.invoice_period <= 5
-        ) {
-          return true;
-        }
-        if (
-          value.invoice_duration === SubscriptionPlanDurationEnum.WEEK &&
-          value.invoice_period <= 4
-        ) {
-          return true;
-        }
-        return false;
+        const isError = {
+          [SubscriptionPlanDurationEnum.DAY]:
+            value.invoice_period <= 31
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_DAY,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.WEEK]:
+            value.invoice_period <= 4
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_WEEK,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.MONTH]:
+            value.invoice_period <= 12
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_MONTH,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.YEAR]:
+            value.invoice_period <= 5
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_YEAR,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+        };
+        return isError[value.invoice_duration];
       }
       return true;
     },
@@ -142,31 +152,41 @@ export const subscriptionPlanUpdateSchema = yup
        * If Duration is WEEK then period must be between 1 and 4
        */
       if (!_.isNil(value.trail_period) && !_.isNil(value.trail_duration)) {
-        if (
-          value.trail_duration === SubscriptionPlanDurationEnum.DAY &&
-          value.trail_period <= 31
-        ) {
-          return true;
-        }
-        if (
-          value.trail_duration === SubscriptionPlanDurationEnum.MONTH &&
-          value.trail_period <= 12
-        ) {
-          return true;
-        }
-        if (
-          value.trail_duration === SubscriptionPlanDurationEnum.YEAR &&
-          value.trail_period <= 5
-        ) {
-          return true;
-        }
-        if (
-          value.trail_duration === SubscriptionPlanDurationEnum.WEEK &&
-          value.trail_period <= 4
-        ) {
-          return true;
-        }
-        return false;
+        const isError = {
+          [SubscriptionPlanDurationEnum.DAY]:
+            value.invoice_period <= 31
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_DAY,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.WEEK]:
+            value.invoice_period <= 4
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_WEEK,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.MONTH]:
+            value.invoice_period <= 12
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_MONTH,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+          [SubscriptionPlanDurationEnum.YEAR]:
+            value.invoice_period <= 5
+              ? true
+              : new yup.ValidationError(
+                  SubscriptionPlanErrorMessage.INVOICE_PERIOD_DURATION_YEAR,
+                  value.invoice_period,
+                  'invoice_period',
+                ),
+        };
+        return isError[value.invoice_duration];
       }
       return true;
     },
