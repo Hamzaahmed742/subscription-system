@@ -1,16 +1,10 @@
-FROM node:10.16.3
-MAINTAINER Harry Nguyen
+FROM node:12.13.0-alpine
+RUN mkdir -p /service/
+ADD package.json yarn.lock /service/
 
-WORKDIR /var/source
+RUN cd /service/ && yarn
+COPY . /service
+WORKDIR /service
 
-
-# Install app dependencies
-COPY package*.json ./
-RUN npm install
-
-# Bundle app source
-
-COPY . /var/source
-EXPOSE 4000
-
-CMD [ "npm", "start" ]
+ENV FORCE_COLOR=1
+CMD ["yarn", "start"]
