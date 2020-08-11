@@ -7,6 +7,7 @@ import { createEverLogger } from '../../helpers/Log';
 import { ErrorGenerator } from '../../shared/errors.generator';
 import {
   BadRequestError,
+  ConflictError,
   NotFoundError,
   ParseError,
 } from '../../shared/errors.messages';
@@ -57,16 +58,26 @@ export class SubscriptionPlanService
       await subscriptionPlanCreateSchema.validate(payload, {
         abortEarly: false,
       });
+      const slug = payload.name.toLowerCase().replace(' ', '-');
+
+      // Check for existing slug
+      const isExist = await this.dbService.findOne<
+        SubscriptionPlan,
+        SubscriptionPlanFilter
+      >({ slug });
+      if (!_.isNil(isExist)) {
+        throw ConflictError(ErrorGenerator.Duplicate('Subscription Plan'));
+      }
       // Make db call
       result = await this.dbService.create<SubscriptionPlan, SubscriptionPlans>(
-        new SubscriptionPlans({ ...payload }),
+        new SubscriptionPlans({ ...payload, slug }),
       );
       this.logger.debug('Subscription Plan added Successfully', result);
     } catch (e) {
       this.logger.error(e);
       ParseError(e, ErrorGenerator.Duplicate('Subscription Plan'));
     }
-    if (!_.isEmpty(result.id)) {
+    if (!_.isEmpty(result?.id)) {
       return result;
     }
     throw BadRequestError(ErrorGenerator.UnableSave('Subscription Plan'));
@@ -220,6 +231,16 @@ export class SubscriptionPlanService
         if (!_.isNil(id)) {
           // Generate the slug
           const slug = payload.name.toLowerCase().replace(' ', '-');
+          // Check for existing slug
+          const isExist = await this.dbService.findOne<
+            SubscriptionPlan,
+            SubscriptionPlanFilter
+          >({ slug });
+          // Validate the ID is not same
+          // Return document can have the same ID as of update
+          if (!_.isNil(isExist) && isExist?.id != id) {
+            throw ConflictError(ErrorGenerator.Duplicate('Subscription Plan'));
+          }
           // Make db call
           [edges, modified] = await this.dbService.update<
             SubscriptionPlan,

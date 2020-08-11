@@ -58,7 +58,18 @@ export class DatabaseService implements IService, IDatabaseRepo {
     delete where?.collection_name;
     if (!_.isEmpty(where)) {
       const id: string = where?.id;
-      return (this.db.load(`${collectionName}/${id}`) as unknown) as Promise<T>;
+      if (!_.isNil(id)) {
+        return (this.db.load(`${collectionName}/${id}`) as unknown) as Promise<
+          T
+        >;
+      }
+      const slug = where?.slug;
+      const result = await this.db
+        .query(`${collectionName}/index/slug`)
+        .whereEquals('slug', slug)
+        .all();
+
+      return result && ((result[0] as unknown) as Promise<T>);
     }
     throw new Error('Method not implemented.');
   }
@@ -114,6 +125,7 @@ export class DatabaseService implements IService, IDatabaseRepo {
       const id: string = where?.id;
       // TODO: Improve the logic for this
       // multiple records
+      // Id is unique it cannot have multiple objects
       const edges = await this.db.load(`${collectionName}/${id}`);
       Object.assign(edges, payload);
       void this.db.saveChanges();
@@ -140,6 +152,7 @@ export class DatabaseService implements IService, IDatabaseRepo {
       const id: string = where?.id;
       // TODO: Improve the logic for this
       // Should return the delete objects with count
+      // Id is unique it cannot have multiple objects
       const edges = await this.db.load(`${collectionName}/${id}`);
       void this.db.delete(edges);
       void this.db.saveChanges();

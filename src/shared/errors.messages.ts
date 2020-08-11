@@ -111,10 +111,14 @@ export const ConflictError = (message = ''): void => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ParseError = (e: any, message: string): void => {
   let errorMessage = e;
 
-  if (errorMessage?.title === 'NOT_FOUND_ERROR') {
+  if (
+    errorMessage?.title === 'NOT_FOUND_ERROR' ||
+    errorMessage?.title === 'CONFLICT_ERROR'
+  ) {
     throw e;
   }
 
@@ -125,6 +129,7 @@ export const ParseError = (e: any, message: string): void => {
   } catch (__) {
     errorMessage = e?.message;
   }
+
   if (errorMessage?.name === 'ValidationError') {
     if (!_.isEmpty(e?.inner)) {
       throw PayloadError(
@@ -137,8 +142,5 @@ export const ParseError = (e: any, message: string): void => {
       );
     }
     throw PayloadError(e?.message);
-  }
-  if (errorMessage?.name === 'SequelizeUniqueConstraintError') {
-    throw ConflictError(message);
   }
 };

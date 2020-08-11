@@ -12,7 +12,7 @@ export const subscriptionPlanFilterSchema = yup.object<SubscriptionPlanFilter>({
     .min(3, ErrorGenerator.MiniLength<SubscriptionPlanFilter>('code', 3)),
   id: yup
     .string()
-    .min(1, ErrorGenerator.MinValue<SubscriptionPlanFilter>('id', 1)),
+    .min(3, ErrorGenerator.MinValue<SubscriptionPlanFilter>('id', 3)),
   limit: yup
     .number()
     .max(1000, ErrorGenerator.MaxValue<SubscriptionPlanFilter>('id', 1000))

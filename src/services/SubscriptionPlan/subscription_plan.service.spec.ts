@@ -4,6 +4,8 @@ import { DatabaseService } from '../database/database.service';
 import { servicesContainer } from '../inversify.config';
 import {
   CreateSubscriptionPlanPayloadError,
+  DeleteSubscriptionPlanError,
+  UpdateSubscriptionPayloadError,
   ValidateDayError,
   ValidateMonthError,
   ValidateWeekError,
@@ -12,7 +14,7 @@ import {
 import { SubscriptionPlanService } from './subscription_plan.service';
 
 describe('Subscription Plan', () => {
-  let subscriptionPlanService;
+  let subscriptionPlanService: SubscriptionPlanService;
   beforeEach(async () => {
     servicesContainer.snapshot();
     subscriptionPlanService = servicesContainer.get<SubscriptionPlanService>(
@@ -43,6 +45,9 @@ describe('Subscription Plan', () => {
 
       const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
 
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve(undefined));
       const find = jest
         .spyOn(dbService, 'create')
         .mockImplementation(() => Promise.resolve({ id: '1' }) as any);
@@ -122,38 +127,210 @@ describe('Subscription Plan', () => {
         });
     });
     it('should validate duplicate Error message ', async () => {
-      expect(true);
+      expect.assertions(2);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve({ id: '1' }) as any);
+      await subscriptionPlanService
+        .create({
+          name: 'Test 1',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('Subscription Plan: already exists');
+          expect(e.title).toEqual('CONFLICT_ERROR');
+        });
     });
     it('should add subscription plan', async () => {
-      expect(true);
+      expect.assertions(1);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve(undefined));
+      const find = jest
+        .spyOn(dbService, 'create')
+        .mockImplementation(() => Promise.resolve({ id: '1' }) as any);
+      await subscriptionPlanService.create({
+        name: 'Sample Plan',
+        price: 10,
+        invoice_duration: 'DAY',
+        invoice_period: 10,
+      });
+      expect(find).toBeCalledWith(
+        expect.objectContaining({
+          name: 'Sample Plan',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        }),
+      );
     });
   });
   describe('Update subscription plan', () => {
     it('should validate payload to error', async () => {
-      expect(true);
+      expect.assertions(2);
+      //
+      await subscriptionPlanService
+        .update(
+          {
+            name: '        ',
+            price: 0,
+            invoice_duration: 'DAY',
+            invoice_period: 1000,
+          },
+          { id: '12-A' },
+        )
+        .catch((e) => {
+          expect(e.message).toEqual(UpdateSubscriptionPayloadError);
+          expect(e.title).toEqual('PAYLOAD_ERROR');
+        });
     });
     it('should validate payload to success', async () => {
-      expect(true);
+      expect.assertions(1);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve(undefined));
+      const updateFn = jest
+        .spyOn(dbService, 'update')
+        .mockImplementation(() => Promise.resolve([{ id: '1' }, 1]) as any);
+      await subscriptionPlanService.update(
+        {
+          name: 'Sample Plan',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        },
+        { id: '12-A' },
+      );
+      expect(updateFn).toBeCalledWith(
+        expect.objectContaining({
+          name: 'Sample Plan',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        }),
+        expect.objectContaining({
+          id: '12-A',
+        }),
+      );
     });
     it('should validate duplicate Error message ', async () => {
-      expect(true);
+      expect.assertions(2);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve({ id: 1 }));
+
+      await subscriptionPlanService
+        .update(
+          {
+            name: 'Sample Plan',
+            price: 10,
+            invoice_duration: 'DAY',
+            invoice_period: 10,
+          },
+          { id: '12-A' },
+        )
+        .catch((e) => {
+          expect(e.message).toEqual('Subscription Plan: already exists');
+          expect(e.title).toEqual('CONFLICT_ERROR');
+        });
     });
     it('should update subscription plan', async () => {
-      expect(true);
+      expect.assertions(1);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      jest
+        .spyOn(dbService, 'findOne')
+        .mockImplementation(() => Promise.resolve(undefined));
+      const updateFn = jest
+        .spyOn(dbService, 'update')
+        .mockImplementation(() => Promise.resolve([{ id: '1' }, 1]) as any);
+      await subscriptionPlanService.update(
+        {
+          name: 'Sample Plan',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        },
+        { id: '12-A' },
+      );
+      expect(updateFn).toBeCalledWith(
+        expect.objectContaining({
+          name: 'Sample Plan',
+          price: 10,
+          invoice_duration: 'DAY',
+          invoice_period: 10,
+        }),
+        expect.objectContaining({
+          id: '12-A',
+        }),
+      );
     });
   });
   describe('Delete subscription plan', () => {
     it('should validate payload to error', async () => {
-      expect(true);
+      expect.assertions(2);
+      //
+      await subscriptionPlanService.delete({ id: '0' }).catch((e) => {
+        expect(e.message).toEqual(DeleteSubscriptionPlanError);
+        expect(e.title).toEqual('PAYLOAD_ERROR');
+      });
     });
     it('should validate payload to success', async () => {
-      expect(true);
+      expect.assertions(1);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      const find = jest
+        .spyOn(dbService, 'delete')
+        .mockImplementation(() => Promise.resolve([{ id: '31-A' }, 1]) as any);
+      await subscriptionPlanService.delete({
+        id: '31-A',
+      });
+      expect(find).toBeCalledWith(expect.objectContaining({ id: '31-A' }));
     });
     it('should validate not found Error message ', async () => {
-      expect(true);
+      expect.assertions(2);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      jest
+        .spyOn(dbService, 'delete')
+        .mockImplementation(() => Promise.resolve([undefined, 0]) as any);
+      await subscriptionPlanService
+        .delete({
+          id: '31-A',
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('No Subscription Plan found');
+          expect(e.title).toEqual('NOT_FOUND_ERROR');
+        });
     });
     it('should delete subscription plan', async () => {
-      expect(true);
+      expect.assertions(1);
+
+      const dbService = servicesContainer.get<DatabaseService>(DatabaseService);
+
+      const find = jest
+        .spyOn(dbService, 'delete')
+        .mockImplementation(() => Promise.resolve([{ id: '31-A' }, 1]) as any);
+      await subscriptionPlanService.delete({
+        id: '31-A',
+      });
+      expect(find).toBeCalledWith(expect.objectContaining({ id: '31-A' }));
     });
   });
   describe('Get subscription plan', () => {
