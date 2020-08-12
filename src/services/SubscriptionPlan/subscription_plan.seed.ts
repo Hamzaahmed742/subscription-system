@@ -13,3 +13,7 @@ export const ValidateMonthError =
   '[{"message":"Invoice Period: must be less than or equal to 12","field":"invoice_period"}]';
 export const ValidateYearError =
   '[{"message":"Invoice Period: must be less than or equal to 5","field":"invoice_period"}]';
+export const FindSubscriptionPlanPayloadError =
+  '[{"message":"id:  must be greater than or equal to 3","field":"id"}]';
+export const FindAllSubscriptionPlanPayloadError =
+  '[{"message":"id:  must be greater than or equal to 3","field":"id"},{"message":"id:  must be less than or equal to 1000","field":"limit"}]';

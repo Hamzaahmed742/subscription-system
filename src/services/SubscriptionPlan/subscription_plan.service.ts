@@ -183,6 +183,7 @@ export class SubscriptionPlanService
     } catch (error) {
       this.logger.error(error);
       // Empty
+      ParseError(error, ErrorGenerator.NotFound('Subscription Plan'));
     }
     // Validate edges are not empty
     if (!_.isEmpty(edges)) {
